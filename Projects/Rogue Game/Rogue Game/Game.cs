@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using RLNET;
 using Rogue_Game.Core;
+using Rogue_Game.Systems;
 
 namespace Rogue_Game
 {
@@ -35,6 +36,7 @@ namespace Rogue_Game
         private static readonly int _messageHeight = 11;
         private static RLConsole _messageConsole;
 
+        public static DungeonMap DungeonMap { get; private set; }
 
         static void Main(string[] args)
         {
@@ -49,6 +51,10 @@ namespace Rogue_Game
             _inventoryConsole = new RLConsole(_inventoryWidth, _inventoryHeight);
             _statConsole = new RLConsole(_statWidth, _statHeight);
             _messageConsole = new RLConsole(_messageWidth, _messageHeight);
+
+            //Creates the Dungeon Map
+            MapGenerator mapGenerator = new MapGenerator(_mapWidth, _mapWidth);
+            DungeonMap = mapGenerator.CreateMap();
 
             // Set up a handler for RLNET's Update Event
             _rootConsole.Update += OnRootConsoleUpdate;
@@ -91,6 +97,9 @@ namespace Rogue_Game
 
             // Tell RLNET to draw the console
             _rootConsole.Draw();
+
+            // Draws the Dungeon Map
+            DungeonMap.Draw(_mapConsole);
         }
     }
 }
