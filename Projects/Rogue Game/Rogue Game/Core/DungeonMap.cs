@@ -12,7 +12,6 @@ namespace Rogue_Game.Core
     //DungeonMap extends the base RogueSharp Map Class
     public class DungeonMap : Map
     {
-
         public static Player Player { get; set; }
 
         public void Draw(RLConsole mapConsole)
@@ -62,7 +61,7 @@ namespace Rogue_Game.Core
         public void UpdatePlayerFieldOfView()
         {
             Player player = Game.Player;
-            Boolean areLightWalls = true, isExplored = true;
+            bool areLightWalls = true, isExplored = true;
 
             //Compute the field of view based on the player's location and awareness
             ComputeFov(player.X, player.Y, player.Awareness, areLightWalls);
@@ -73,6 +72,41 @@ namespace Rogue_Game.Core
                 if (IsInFov(cell.X, cell.Y))
                     SetCellProperties(cell.X, cell.Y, cell.IsTransparent, cell.IsWalkable, isExplored);
             }
+        }
+
+        // Returns true when able to place the Actor on the cell and false otherwise.
+        public bool SetActorPosition(Actor actor, int x, int y)
+        {
+            // Only allow actor placement if the cell is walkable
+            if(GetCell(x, y).IsWalkable)
+            {
+                bool isWalkable = true;
+                // The cell the actor was previously on is now walkable
+                SetIsWalkable(actor.X, actor.Y, isWalkable);
+
+                // Update actor's position
+                actor.X = x;
+                actor.Y = y;
+
+                //The new cell the actor is on is now not walkable
+                isWalkable = false;
+                SetIsWalkable(actor.X, actor.Y, isWalkable);
+
+                // Update field of view since reposition the player
+                if (actor is Player)
+                    UpdatePlayerFieldOfView();
+
+                return true;
+            }
+
+            return false;
+        }
+
+       // Sets the IsWalkable property on a Cell
+       public void SetIsWalkable(int x, int y, bool isWalkable)
+        {
+            ICell cell = GetCell(x, y);
+            SetCellProperties(cell.X, cell.Y, cell.IsTransparent, isWalkable, cell.IsExplored);
         }
 
     }

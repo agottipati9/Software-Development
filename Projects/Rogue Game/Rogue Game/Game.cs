@@ -39,6 +39,9 @@ namespace Rogue_Game
         public static DungeonMap DungeonMap { get; private set; }
         public static Player Player { get; private set; }
 
+        private static bool _renderRequired = true;
+        public static CommandSystem CommandSystem { get; private set; }
+
         static void Main(string[] args)
         {
             string fontFileName = "terminal8x8.png";
@@ -61,6 +64,9 @@ namespace Rogue_Game
             DungeonMap = mapGenerator.CreateMap();
             DungeonMap.UpdatePlayerFieldOfView();
 
+            // Commands for player movement
+            CommandSystem = new CommandSystem();
+
             // Set up a handler for RLNET's Update Event
             _rootConsole.Update += OnRootConsoleUpdate;
             // Set up a handler for RLNET's Render Event
@@ -74,8 +80,6 @@ namespace Rogue_Game
         {
             //Set background color and text for each console
             // so that we can verify they are in the correct positions
-            _mapConsole.SetBackColor(0, 0, _mapWidth, _mapHeight, Colors.FloorBackground);
-            _mapConsole.Print(1, 1, "Map", Colors.TextHeading);
 
             _inventoryConsole.SetBackColor(0, 0, _inventoryWidth, _inventoryHeight, Swatch.DbDeepWater);
             _inventoryConsole.Print(1, 1, "Inventory", Colors.TextHeading);
@@ -85,6 +89,36 @@ namespace Rogue_Game
 
             _messageConsole.SetBackColor(0, 0, _messageWidth, _messageHeight, Swatch.DbOldStone);
             _messageConsole.Print(1, 1, "Messages", Colors.TextHeading);
+
+            bool didPlayerAct = false;
+            RLKeyPress keyPress = _rootConsole.Keyboard.GetKeyPress();
+
+            if(keyPress != null)
+            {
+                if(keyPress.Key == RLKey.Up)
+                {
+                    didPlayerAct = CommandSystem.MovePlayer(Direction.Up);
+                }
+                else if (keyPress.Key == RLKey.Down)
+                {
+                    didPlayerAct = CommandSystem.MovePlayer(Direction.Down);
+                }
+                else if (keyPress.Key == RLKey.Left)
+                {
+                    didPlayerAct = CommandSystem.MovePlayer(Direction.Left);
+                }
+                else if (keyPress.Key == RLKey.Right)
+                {
+                    didPlayerAct = CommandSystem.MovePlayer(Direction.Right);
+                }
+                else if (keyPress.Key == RLKey.Escape)
+                {
+                    _rootConsole.Close();
+                }
+            }
+
+            if (didPlayerAct)
+                _renderRequired = true;
         }
 
         //Event handler for RLNET's Render Event
@@ -103,11 +137,17 @@ namespace Rogue_Game
             // Tell RLNET to draw the console
             _rootConsole.Draw();
 
-            // Draws the Dungeon Map
-            DungeonMap.Draw(_mapConsole);
+            if (_renderRequired)
+            {
+                // Draws the Dungeon Map
+                DungeonMap.Draw(_mapConsole);
 
-            // Draws the player
-            Player.Draw(_mapConsole, DungeonMap);
+                // Draws the player
+                Player.Draw(_mapConsole, DungeonMap);
+
+                _renderRequired = false;
+            }
+            
             
         }
     }
