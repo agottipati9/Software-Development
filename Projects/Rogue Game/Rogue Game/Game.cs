@@ -37,6 +37,7 @@ namespace Rogue_Game
         private static RLConsole _messageConsole;
 
         public static DungeonMap DungeonMap { get; private set; }
+        public static Player Player { get; private set; }
 
         static void Main(string[] args)
         {
@@ -52,9 +53,13 @@ namespace Rogue_Game
             _statConsole = new RLConsole(_statWidth, _statHeight);
             _messageConsole = new RLConsole(_messageWidth, _messageHeight);
 
+            //Creates the player
+            Player = new Player();
+
             //Creates the Dungeon Map
             MapGenerator mapGenerator = new MapGenerator(_mapWidth, _mapWidth);
             DungeonMap = mapGenerator.CreateMap();
+            DungeonMap.UpdatePlayerFieldOfView();
 
             // Set up a handler for RLNET's Update Event
             _rootConsole.Update += OnRootConsoleUpdate;
@@ -100,6 +105,10 @@ namespace Rogue_Game
 
             // Draws the Dungeon Map
             DungeonMap.Draw(_mapConsole);
+
+            // Draws the player
+            Player.Draw(_mapConsole, DungeonMap);
+            
         }
     }
 }

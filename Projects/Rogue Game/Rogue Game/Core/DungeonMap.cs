@@ -1,6 +1,7 @@
 ﻿using RLNET;
 using RogueSharp;
 using System;
+using Rogue_Game.Core;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,8 @@ namespace Rogue_Game.Core
     //DungeonMap extends the base RogueSharp Map Class
     public class DungeonMap : Map
     {
+
+        public static Player Player { get; set; }
 
         public void Draw(RLConsole mapConsole)
         {
@@ -52,6 +55,23 @@ namespace Rogue_Game.Core
                 {
                     console.Set(cell.X, cell.Y, Colors.WallFov, Colors.WallBackgroundFov, '#');
                 }
+            }
+        }
+
+        // This method will be alled any time we move the player to update field of view
+        public void UpdatePlayerFieldOfView()
+        {
+            Player player = Game.Player;
+            Boolean areLightWalls = true, isExplored = true;
+
+            //Compute the field of view based on the player's location and awareness
+            ComputeFov(player.X, player.Y, player.Awareness, areLightWalls);
+
+            //Mark all cells in field of view as having been explored
+            foreach(Cell cell in GetAllCells())
+            {
+                if (IsInFov(cell.X, cell.Y))
+                    SetCellProperties(cell.X, cell.Y, cell.IsTransparent, cell.IsWalkable, isExplored);
             }
         }
 
