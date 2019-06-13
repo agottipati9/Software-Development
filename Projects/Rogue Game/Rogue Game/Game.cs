@@ -38,7 +38,7 @@ namespace Rogue_Game
         private static RLConsole _messageConsole;
 
         public static DungeonMap DungeonMap { get; private set; }
-        public static Player Player { get; private set; }
+        public static Player Player { get; set; }
         // Random Number Generator used throughout the game
         public static IRandom Random { get; private set; }
 
@@ -63,9 +63,6 @@ namespace Rogue_Game
             _inventoryConsole = new RLConsole(_inventoryWidth, _inventoryHeight);
             _statConsole = new RLConsole(_statWidth, _statHeight);
             _messageConsole = new RLConsole(_messageWidth, _messageHeight);
-
-            //Creates the player
-            Player = new Player();
 
             //Creates the Dungeon Map
             MapGenerator mapGenerator = new MapGenerator(_mapWidth, _mapWidth, 20, 13, 7);

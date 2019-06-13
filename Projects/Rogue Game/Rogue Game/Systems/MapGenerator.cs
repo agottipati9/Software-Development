@@ -40,9 +40,9 @@ namespace Rogue_Game.Systems
             Boolean notWalkable = false, notTransparent = false;
 
             _map.Initialize(_width, _height);
-            
+
             // Place as many rooms as the specified maxRooms
-            for(int r = _maxRooms; r > 0; r--)
+            for (int r = _maxRooms; r > 0; r--)
             {
                 // Determine the size and position of the room randomly
                 int roomWidth = Game.Random.Next(_roomMinSize, _roomMaxSize);
@@ -59,10 +59,34 @@ namespace Rogue_Game.Systems
                 //If room doesn't intersect add it to the list of rooms
                 if (!newRoomIntersects)
                     _map.Rooms.Add(newRoom);
-
-                foreach (Rectangle room in _map.Rooms)
-                    CreateRoom(room);
             }
+
+            foreach (Rectangle room in _map.Rooms)
+               CreateRoom(room);
+
+            // Starting from the second room (r = 1)
+            for(int r = 1; r < _map.Rooms.Count; r++)
+            {
+                // For all remaining rooms get the center of the room and the previous room
+                int previousRoomCenterX = _map.Rooms[r - 1].Center.X;
+                int previousRoomCenterY = _map.Rooms[r - 1].Center.Y;
+                int currentRoomCenterX = _map.Rooms[r].Center.X;
+                int currentRoomCenterY = _map.Rooms[r].Center.X;
+
+                // Give a 50/50 chance of which 'L' shaped connecting hallway to tunnel out
+                if(Game.Random.Next(1, 2) == 1)
+                {
+                    CreateHorizontalTunnel(previousRoomCenterX, currentRoomCenterX, previousRoomCenterY);
+                    CreateVerticalTunnel(previousRoomCenterY, currentRoomCenterY, currentRoomCenterX);
+                }
+                else
+                {
+                    CreateVerticalTunnel(previousRoomCenterY, currentRoomCenterY, previousRoomCenterX);
+                    CreateHorizontalTunnel(previousRoomCenterX, currentRoomCenterX, currentRoomCenterY);
+                }
+            }
+
+            PlacePlayer();
 
             return _map;
         }
@@ -79,6 +103,40 @@ namespace Rogue_Game.Systems
                     _map.SetCellProperties(x, y, isTransparent, isWalkable, hasExplored);
                 }
             }
+        }
+
+        // Carves a tunnel parallel to the x-axis
+        private void CreateHorizontalTunnel(int xStart, int xEnd, int yPosition)
+        {
+            bool isTransparent = true, isWalkable = true;
+
+            for (int x = Math.Min(xStart, xEnd); x <= Math.Max(xStart, xEnd); x++)
+                _map.SetCellProperties(x, y: yPosition, isTransparent, isWalkable);
+        }
+
+        // Carves a tunnel parallel to the y-axis
+        private void CreateVerticalTunnel(int yStart, int yEnd, int xPosition)
+        {
+            bool isTransparent = true, isWalkable = true;
+
+            for (int y = Math.Min(yStart, yEnd); y <= Math.Max(yStart, yEnd); y++)
+                _map.SetCellProperties(xPosition, y: y, isTransparent, isWalkable);
+        }
+
+        // Finds the center of the first room that was created and places the Player there
+        private void PlacePlayer()
+        {
+            Player player = Game.Player;
+            if(player == null)
+            {
+                player = new Player();
+            }
+
+            player.X = _map.Rooms[0].Center.X;
+            player.Y = _map.Rooms[0].Center.Y;
+
+            _map.AddPlayer(player);
+
         }
 
     }

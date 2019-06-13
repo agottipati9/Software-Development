@@ -116,5 +116,13 @@ namespace Rogue_Game.Core
             SetCellProperties(cell.X, cell.Y, cell.IsTransparent, isWalkable, cell.IsExplored);
         }
 
+        // Adds the player to the map
+        public void AddPlayer(Player player)
+        {
+            bool isWalkable = false;
+            Game.Player = player;
+            SetIsWalkable(player.X, player.Y, isWalkable);
+            UpdatePlayerFieldOfView();
+        }
     }
 }
