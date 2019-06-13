@@ -12,7 +12,14 @@ namespace Rogue_Game.Core
     //DungeonMap extends the base RogueSharp Map Class
     public class DungeonMap : Map
     {
+        public List<Rectangle> Rooms;
         public static Player Player { get; set; }
+
+        public DungeonMap()
+        {
+            //Initialize the list of rooms when we create a new DungeonMap
+            Rooms = new List<Rectangle>();
+        }
 
         public void Draw(RLConsole mapConsole)
         {

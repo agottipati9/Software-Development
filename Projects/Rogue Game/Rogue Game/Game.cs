@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using RLNET;
 using Rogue_Game.Core;
 using Rogue_Game.Systems;
+using RogueSharp.Random;
 
 namespace Rogue_Game
 {
@@ -38,15 +39,22 @@ namespace Rogue_Game
 
         public static DungeonMap DungeonMap { get; private set; }
         public static Player Player { get; private set; }
+        // Random Number Generator used throughout the game
+        public static IRandom Random { get; private set; }
 
         private static bool _renderRequired = true;
         public static CommandSystem CommandSystem { get; private set; }
 
         static void Main(string[] args)
         {
+            // Establish the sedd for the random number generator from the current time
+            int seed = (int)DateTime.UtcNow.Ticks;
+            Random = new DotNetRandom(seed);
+
+            // The tile will appear at the top of the console, with the seed used to generate the level
+            string consoleTitle = $"Level 1 - Seed {seed}";
+
             string fontFileName = "terminal8x8.png";
-            // Title at the top of the console window
-            string consoleTitle = "Rouge Sharp V3 Tutorial - Level 1";
             // Tell RLNet to use the bitmap and specify that each tile is 8 x 8
             _rootConsole = new RLRootConsole(fontFileName, _screenWidth, _screenHeight,
                 8, 8, 1f, consoleTitle);
@@ -60,7 +68,7 @@ namespace Rogue_Game
             Player = new Player();
 
             //Creates the Dungeon Map
-            MapGenerator mapGenerator = new MapGenerator(_mapWidth, _mapWidth);
+            MapGenerator mapGenerator = new MapGenerator(_mapWidth, _mapWidth, 20, 13, 7);
             DungeonMap = mapGenerator.CreateMap();
             DungeonMap.UpdatePlayerFieldOfView();
 
