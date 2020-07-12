@@ -1,2 +1,2 @@
 # Software-Development
-Self Teaching Software Dev Principles
+Small software projects.
